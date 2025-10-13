@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Operaciones Matemáticas con 5 Iteraciones</title>
+</head>
+<body>
+    <h1>Operaciones Matematicas Con 2 Numeros</h1>
+
+    <label for="num1">Número 1:</label>
+    <input type="number" id="num1">
+    <br>
+    <label for="num2">Número 2:</label>
+    <input type="number" id="num2">
+    <br><br>
+
+    <button onclick="realizarOperaciones()">Realizar Operaciones</button>
+
+    <div id="resultados" class="result"></div>
+
+    <script>
+        function realizarOperaciones() {
+            const num1 = parseFloat(document.getElementById("num1").value);
+            const num2 = parseFloat(document.getElementById("num2").value);
+
+            let resultadosHTML = "<h2>Resultados de las Operaciones</h2>";
+
+            // Realizar las operaciones en un bucle de 5 iteraciones
+            for (let i = 1; i <= 5; i++) {
+                switch (i) {
+                    case 1:
+                        resultadosHTML += `<p>Iteración ${i}: Suma: ${num1 + num2}</p>`;
+                        break;
+                    case 2:
+                        resultadosHTML += `<p>Iteración ${i}: Resta: ${num1 - num2}</p>`;
+                        break;
+                    case 3:
+                        resultadosHTML += `<p>Iteración ${i}: Multiplicación: ${num1 * num2}</p>`;
+                        break;
+                    case 4:
+                        resultadosHTML += `<p>Iteración ${i}: División: ${
+                            num2 !== 0 ? num1 / num2 : "No se puede dividir entre cero"
+                        }</p>`;
+                        break;
+                    case 5:
+                        resultadosHTML += `<p>Iteración ${i}: Módulo: ${
+                            num2 !== 0 ? num1 % num2 : "No se puede realizar módulo entre cero"
+                        }</p>`;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            document.getElementById("resultados").innerHTML = resultadosHTML;
+        }
+    </script>
+</body>
+</html>

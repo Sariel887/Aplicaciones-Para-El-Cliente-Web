@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Sílabo - ULEAM</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .form-section {
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .actions-bar {
+            position: sticky;
+            bottom: 0;
+            background: var(--white);
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            margin: 2rem -2rem -2rem -2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .form-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://libros.uleam.edu.ec/wp-content/uploads/2024/06/cropped-LOGO-ULEAM-HORIZONTAL.png" alt="Logo ULEAM" style="height: 50px;">
+                <h1>Sistema de Sílabos</h1>
+            </div>
+            <nav class="nav-links">
+                <a href="panel-profesor.html">Inicio</a>
+                <a href="crear-silabo.html" class="active">Crear Sílabo</a>
+                <a href="#" onclick="auth.logout()">Cerrar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h2 id="formTitle">Crear Nuevo Sílabo</h2>
+            <p class="mb-3">Complete la información del sílabo académico</p>
+
+            <form id="syllabusForm" onsubmit="handleSubmit(event)">
+                <!-- Información General -->
+                <div class="form-section">
+                    <h3>1. Información General</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="subject">Asignatura</label>
+                            <input type="text" id="subject" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="code">Código</label>
+                            <input type="text" id="code" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="credits">Créditos</label>
+                            <input type="number" id="credits" class="form-control" required min="1" max="10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="hours">Horas Semanales</label>
+                            <input type="number" id="hours" class="form-control" required min="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descripción y Objetivos -->
+                <div class="form-section">
+                    <h3>2. Descripción y Objetivos</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="description">Descripción de la Asignatura</label>
+                        <textarea id="description" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="objective">Objetivo General</label>
+                        <textarea id="objective" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="specific">Objetivos Específicos</label>
+                        <textarea id="specific" class="form-control" rows="4" required
+                            placeholder="- Objetivo 1&#10;- Objetivo 2&#10;- Objetivo 3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Contenidos -->
+                <div class="form-section">
+                    <h3>3. Contenidos</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="units">Unidades</label>
+                        <textarea id="units" class="form-control" rows="6" required
+                            placeholder="Unidad 1: Título&#10;- Tema 1&#10;- Tema 2&#10;&#10;Unidad 2: Título&#10;- Tema 1"></textarea>
+                    </div>
+                </div>
+
+                <!-- Metodología -->
+                <div class="form-section">
+                    <h3>4. Metodología</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="methodology">Estrategias Metodológicas</label>
+                        <textarea id="methodology" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Evaluación -->
+                <div class="form-section">
+                    <h3>5. Sistema de Evaluación</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="evaluation">Criterios de Evaluación</label>
+                        <textarea id="evaluation" class="form-control" rows="4" required
+                            placeholder="- Exámenes: 40%&#10;- Trabajos: 30%&#10;- Proyectos: 30%"></textarea>
+                    </div>
+                </div>
+
+                <!-- Bibliografía -->
+                <div class="form-section">
+                    <h3>6. Bibliografía</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="bibliography">Referencias Bibliográficas</label>
+                        <textarea id="bibliography" class="form-control" rows="4" required
+                            placeholder="Formato APA:&#10;Autor, A. (Año). Título. Editorial."></textarea>
+                    </div>
+                </div>
+
+                <!-- Barra de Acciones -->
+                <div class="actions-bar">
+                    <button type="button" class="btn btn-outline" onclick="saveDraft()">
+                        Guardar Borrador
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Enviar a Revisión
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Universidad Laica Eloy Alfaro de Manabí</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/syllabus.js"></script>
+    <script>
+        let syllabusId = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar autenticación
+            if (!auth.isAuthenticated() || !auth.hasRole('professor')) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Verificar si es edición
+            const params = new URLSearchParams(window.location.search);
+            syllabusId = params.get('id');
+            
+            if (syllabusId) {
+                document.getElementById('formTitle').textContent = 'Editar Sílabo';
+                loadSyllabusData(syllabusId);
+            }
+        });
+
+        function loadSyllabusData(id) {
+            const syllabus = syllabusManager.getSyllabusById(parseInt(id));
+            if (syllabus) {
+                document.getElementById('subject').value = syllabus.subject || '';
+                document.getElementById('code').value = syllabus.code || '';
+                document.getElementById('credits').value = syllabus.credits || '';
+                document.getElementById('hours').value = syllabus.hours || '';
+                document.getElementById('description').value = syllabus.description || '';
+                document.getElementById('objective').value = syllabus.objective || '';
+                document.getElementById('specific').value = syllabus.specific || '';
+                document.getElementById('units').value = syllabus.units || '';
+                document.getElementById('methodology').value = syllabus.methodology || '';
+                document.getElementById('evaluation').value = syllabus.evaluation || '';
+                document.getElementById('bibliography').value = syllabus.bibliography || '';
+            }
+        }
+
+        function collectFormData() {
+            return {
+                id: syllabusId ? parseInt(syllabusId) : null,
+                subject: document.getElementById('subject').value,
+                code: document.getElementById('code').value,
+                credits: parseInt(document.getElementById('credits').value),
+                hours: parseInt(document.getElementById('hours').value),
+                description: document.getElementById('description').value,
+                objective: document.getElementById('objective').value,
+                specific: document.getElementById('specific').value,
+                units: document.getElementById('units').value,
+                methodology: document.getElementById('methodology').value,
+                evaluation: document.getElementById('evaluation').value,
+                bibliography: document.getElementById('bibliography').value
+            };
+        }
+
+        function saveDraft() {
+            const data = collectFormData();
+            if (syllabusManager.saveSyllabusData(data, true)) {
+                auth.showNotification('Borrador guardado correctamente', 'success');
+            } else {
+                auth.showNotification('Error al guardar el borrador', 'error');
+            }
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            if (confirm('¿Está seguro de enviar el sílabo para revisión?')) {
+                const data = collectFormData();
+                if (syllabusManager.saveSyllabusData(data, false)) {
+                    auth.showNotification('Sílabo enviado a revisión', 'success');
+                    setTimeout(() => window.location.href = 'panel-profesor.html', 1500);
+                } else {
+                    auth.showNotification('Error al enviar el sílabo', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

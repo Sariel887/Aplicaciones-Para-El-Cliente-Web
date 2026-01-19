@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Comisión - ULEAM</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://libros.uleam.edu.ec/wp-content/uploads/2024/06/cropped-LOGO-ULEAM-HORIZONTAL.png" alt="Logo ULEAM" style="height: 50px;">
+                <h1>Sistema de Sílabos</h1>
+            </div>
+            <nav class="nav-links">
+                <a href="panel-comision.html" class="active">Inicio</a>
+                <a href="revision.html">Revisiones Pendientes</a>
+                <a href="#" onclick="auth.logout()">Cerrar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h2>Panel de Comisión Académica</h2>
+            <p>Gestión y revisión de sílabos académicos</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>Sílabos por Revisar</h3>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Asignatura</th>
+                                <th>Profesor</th>
+                                <th>Facultad</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTable">
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Resumen</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div>
+                        <h4>Pendientes</h4>
+                        <p id="pendingCount" class="status-badge status-pending">0</p>
+                    </div>
+                    <div>
+                        <h4>Revisados Hoy</h4>
+                        <p id="reviewedToday" class="status-badge status-approved">0</p>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button onclick="verTodosSilabos()" class="btn btn-primary" style="width: 100%">
+                        Ver Todos los Sílabos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Universidad Laica Eloy Alfaro de Manabí</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/syllabus.js"></script>
+    <script src="js/ejemplo-silabo.js"></script>
+    <script>
+        // Crear sílabo de ejemplo si no hay sílabos
+        function crearSilaboEjemplo() {
+            if (syllabusManager.syllabus.length === 0) {
+                const ejemploSilabo = {
+                    subject: "Programación Web",
+                    code: "PW-2025",
+                    credits: 4,
+                    hours: 6,
+                    description: "Curso avanzado de desarrollo web con énfasis en tecnologías modernas y mejores prácticas de programación.",
+                    objective: "Desarrollar aplicaciones web modernas utilizando las últimas tecnologías y frameworks disponibles.",
+                    specific: "- Comprender los fundamentos de HTTP y la arquitectura cliente-servidor\n- Implementar aplicaciones web usando HTML5, CSS3 y JavaScript\n- Desarrollar APIs REST y servicios web\n- Aplicar principios de diseño responsivo y experiencia de usuario",
+                    units: "Unidad 1: Fundamentos Web\n- Arquitectura cliente-servidor\n- Protocolo HTTP\n- HTML5 y CSS3 avanzado\n\nUnidad 2: JavaScript y Programación Frontend\n- JavaScript moderno (ES6+)\n- DOM y eventos\n- APIs del navegador\n\nUnidad 3: Desarrollo Backend\n- Servidores web\n- APIs REST\n- Bases de datos\n\nUnidad 4: Frameworks y Herramientas Modernas\n- React/Angular/Vue\n- Node.js\n- Herramientas de desarrollo",
+                    methodology: "El curso utiliza una metodología práctica basada en proyectos, combinando teoría con ejercicios prácticos y desarrollo de aplicaciones reales.",
+                    evaluation: "- Proyectos prácticos: 40%\n- Exámenes parciales: 30%\n- Trabajo final: 20%\n- Participación: 10%",
+                    bibliography: "- MDN Web Docs (2025). JavaScript Guide\n- Duckett, J. (2024). HTML & CSS: Diseño y Desarrollo Web\n- Simpson, K. (2025). You Don't Know JS Yet\n- Documentación oficial de React, Angular y Vue",
+                    id: Date.now(),
+                    professor: "Dr. Carlos Martínez",
+                    faculty: "Facultad de Informática",
+                    status: "pending",
+                    created: new Date().toISOString(),
+                    lastModified: new Date().toISOString(),
+                    comments: ""
+                };
+
+                // Agregar el ejemplo al sistema
+                syllabusManager.syllabus.push(ejemploSilabo);
+                syllabusManager.saveSyllabus();
+                console.log('Sílabo de ejemplo creado');
+                return true;
+            }
+            return false;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar autenticación
+            if (!auth.isAuthenticated() || !auth.hasRole('committee')) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Verificar si hay datos
+            const syllabus = JSON.parse(localStorage.getItem('syllabus') || '[]');
+            
+            // Si no hay datos, crear sílabo de ejemplo
+            if (syllabus.length === 0) {
+                const ejemploCreado = crearSilaboEjemplo();
+                if (ejemploCreado) {
+                    auth.showNotification('Se ha creado un sílabo de ejemplo para demostración', 'info');
+                }
+            }
+
+            // Cargar datos
+            loadPendingReviews();
+            updateStats();
+        });
+
+        function loadPendingReviews(showAll = false) {
+            // Obtener sílabos según el filtro
+            const syllabusList = showAll ? syllabusManager.syllabus : syllabusManager.getSyllabusByStatus('pending');
+            
+            const tbody = document.getElementById('pendingTable');
+            
+            if (syllabusList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            ${showAll ? 'No hay sílabos registrados' : 'No hay sílabos pendientes de revisión'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = syllabusList.map(item => `
+                <tr>
+                    <td>${item.subject}</td>
+                    <td>${item.professor}</td>
+                    <td>${item.faculty}</td>
+                    <td><span class="status-badge status-${item.status}">${getStatusName(item.status)}</span></td>
+                    <td>
+                        <button class="btn btn-outline" onclick="revisarSilabo(${item.id})">
+                            Revisar
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const stats = syllabusManager.getStats();
+            document.getElementById('pendingCount').textContent = stats.pending;
+            
+            // Contar sílabos revisados hoy
+            const today = new Date().toISOString().split('T')[0];
+            const reviewedToday = syllabusManager.syllabus.filter(s => {
+                return s.lastModified && s.lastModified.startsWith(today) && 
+                       (s.status === 'approved' || s.status === 'rejected');
+            }).length;
+            
+            document.getElementById('reviewedToday').textContent = reviewedToday;
+        }
+
+        function getStatusName(status) {
+            const names = {
+                pendiente: 'Pendiente',
+                revision: 'En Revisión',
+                aprobado: 'Aprobado',
+                rechazado: 'Rechazado'
+            };
+            return names[status] || status;
+        }
+
+        function revisarSilabo(id) {
+            // Verificar que el sílabo existe antes de redirigir
+            const syllabus = syllabusManager.getSyllabusById(id);
+            if (syllabus) {
+                localStorage.setItem('reviewing_syllabus', id);
+                window.location.href = `revision.html?id=${id}`;
+            } else {
+                auth.showNotification('No se puede cargar el sílabo', 'error');
+            }
+        }
+
+        function verTodosSilabos() {
+            // Mostrar todos los sílabos en la tabla
+            loadPendingReviews(true);
+            // Actualizar el título de la tabla
+            document.querySelector('.card h3').textContent = 'Todos los Sílabos';
+        }
+    </script>
+</body>
+</html>

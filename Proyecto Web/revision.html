@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión de Sílabo - ULEAM</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .syllabus-content {
+            background: var(--gray-100);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .review-section {
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .review-comments {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .actions-bar {
+            position: sticky;
+            bottom: 0;
+            background: var(--white);
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            margin: 2rem -2rem -2rem -2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .status-info {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: var(--white);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+
+        .navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://libros.uleam.edu.ec/wp-content/uploads/2024/06/cropped-LOGO-ULEAM-HORIZONTAL.png" alt="Logo ULEAM" style="height: 50px;">
+                <h1>Sistema de Sílabos</h1>
+            </div>
+            <nav class="nav-links">
+                <a href="panel-comision.html">Panel Principal</a>
+                <a href="#" class="active">Revisión de Sílabo</a>
+                <a href="#" onclick="auth.logout()">Cerrar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="navigation-bar">
+                <a href="panel-comision.html" class="btn btn-outline">← Volver al Panel</a>
+                <div id="syllabusStatus"></div>
+            </div>
+
+            <div id="syllabusHeader">
+                <h2>Revisión de Sílabo</h2>
+                <p class="mb-3">Asignatura: <strong id="subjectName">Cargando...</strong></p>
+                <p>Profesor: <strong id="professorName">Cargando...</strong></p>
+            </div>
+
+            <!-- Contenido del Sílabo -->
+            <div id="syllabusContent" class="syllabus-content">
+                <div class="spinner">Cargando contenido...</div>
+            </div>
+
+            <!-- Formulario de Revisión -->
+            <div class="review-section" id="reviewForm" style="display: none;">
+                <h3>Evaluación del Sílabo</h3>
+                
+                <div class="form-group mt-3">
+                    <h4 class="section-title">Lista de Verificación</h4>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1" required>
+                        <label for="check1">Los objetivos están claros y alineados con el perfil de egreso</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2" required>
+                        <label for="check2">Los contenidos están actualizados y son relevantes</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3" required>
+                        <label for="check3">La metodología es apropiada y está bien definida</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4" required>
+                        <label for="check4">El sistema de evaluación es claro y equilibrado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5" required>
+                        <label for="check5">La bibliografía está actualizada y es pertinente</label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label class="form-label" for="comments">Comentarios y Observaciones</label>
+                    <textarea id="comments" class="form-control" rows="4" required
+                        placeholder="Ingrese sus observaciones detalladas sobre el sílabo..."></textarea>
+                </div>
+
+                <div class="actions-bar">
+                    <button type="button" class="btn btn-outline" onclick="handleRequestChanges()">
+                        Solicitar Cambios
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="handleApprove()">
+                        Aprobar Sílabo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Universidad Laica Eloy Alfaro de Manabí</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/syllabus.js"></script>
+    <script>
+        let currentSyllabusId = null;
+
+        // Verificar autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!auth.isAuthenticated() || !auth.hasRole('committee')) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            initializeReview();
+        });
+
+        function initializeReview() {
+            try {
+                // Verificar ID del sílabo tanto en URL como en localStorage
+                const params = new URLSearchParams(window.location.search);
+                const urlId = params.get('id');
+                const storedId = localStorage.getItem('reviewing_syllabus');
+                
+                // Validar que los IDs coincidan
+                if (!urlId || !storedId || urlId !== storedId) {
+                    throw new Error('ID de sílabo no válido o inconsistente');
+                }
+
+                const id = parseInt(urlId);
+                if (isNaN(id)) {
+                    throw new Error('ID de sílabo no válido');
+                }
+
+                // Verificar que el sílabo existe
+                const syllabus = syllabusManager.getSyllabusById(id);
+                if (!syllabus) {
+                    throw new Error('Sílabo no encontrado');
+                }
+
+                currentSyllabusId = id;
+                loadSyllabusData();
+
+            } catch (error) {
+                console.error('Error en initializeReview:', error);
+                showError(error.message);
+            }
+        }
+
+        function loadSyllabusData() {
+            try {
+                const syllabus = syllabusManager.getSyllabusById(currentSyllabusId);
+                
+                if (!syllabus) {
+                    showError('No se encontró el sílabo especificado');
+                    return;
+                }
+
+                if (syllabus.status !== 'pending') {
+                    showError('Este sílabo no está pendiente de revisión');
+                    return;
+                }
+
+                updateInterface(syllabus);
+            } catch (error) {
+                console.error('Error al cargar el sílabo:', error);
+                showError('Error al cargar el sílabo');
+            }
+        }
+
+        function updateInterface(syllabus) {
+            // Actualizar encabezado
+            document.getElementById('subjectName').textContent = syllabus.subject;
+            document.getElementById('professorName').textContent = syllabus.professor;
+            
+            // Mostrar estado
+            document.getElementById('syllabusStatus').innerHTML = `
+                <span class="status-badge status-${syllabus.status}">
+                    ${getStatusName(syllabus.status)}
+                </span>
+            `;
+
+            // Actualizar contenido
+            document.getElementById('syllabusContent').innerHTML = `
+                <div class="review-comments">
+                    <h4 class="section-title">Información General</h4>
+                    <p><strong>Código:</strong> ${syllabus.code}</p>
+                    <p><strong>Créditos:</strong> ${syllabus.credits}</p>
+                    <p><strong>Horas Semanales:</strong> ${syllabus.hours}</p>
+                </div>
+                <div class="review-comments">
+                    <h4 class="section-title">Descripción</h4>
+                    <pre>${syllabus.description || 'No especificada'}</pre>
+                </div>
+                <div class="review-comments">
+                    <h4 class="section-title">Objetivos</h4>
+                    <p><strong>General:</strong></p>
+                    <pre>${syllabus.objective || 'No especificado'}</pre>
+                    <p><strong>Específicos:</strong></p>
+                    <pre>${syllabus.specific || 'No especificados'}</pre>
+                </div>
+                <div class="review-comments">
+                    <h4 class="section-title">Unidades</h4>
+                    <pre>${syllabus.units || 'No especificadas'}</pre>
+                </div>
+                <div class="review-comments">
+                    <h4 class="section-title">Metodología</h4>
+                    <pre>${syllabus.methodology || 'No especificada'}</pre>
+                </div>
+                <div class="review-comments">
+                    <h4 class="section-title">Evaluación</h4>
+                    <pre>${syllabus.evaluation || 'No especificada'}</pre>
+                </div>
+                <div class="review-comments">
+                    <h4 class="section-title">Bibliografía</h4>
+                    <pre>${syllabus.bibliography || 'No especificada'}</pre>
+                </div>
+            `;
+
+            // Mostrar formulario de revisión
+            document.getElementById('reviewForm').style.display = 'block';
+        }
+
+        function validateReview() {
+            const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            if (!allChecked) {
+                auth.showNotification('Por favor, verifique todos los criterios', 'warning');
+                return false;
+            }
+
+            const comments = document.getElementById('comments').value.trim();
+            if (!comments) {
+                auth.showNotification('Por favor, ingrese comentarios sobre la revisión', 'warning');
+                return false;
+            }
+
+            return true;
+        }
+
+        function handleApprove() {
+            if (!validateReview()) return;
+
+            const comments = document.getElementById('comments').value.trim();
+            
+            if (confirm('¿Está seguro de aprobar este sílabo?')) {
+                try {
+                    if (syllabusManager.approveSyllabus(currentSyllabusId, comments)) {
+                        auth.showNotification('Sílabo aprobado correctamente', 'success');
+                        redirectToPanel();
+                    } else {
+                        throw new Error('No se pudo aprobar el sílabo');
+                    }
+                } catch (error) {
+                    console.error('Error al aprobar:', error);
+                    auth.showNotification(error.message, 'error');
+                }
+            }
+        }
+
+        function handleRequestChanges() {
+            const comments = document.getElementById('comments').value.trim();
+            if (!comments) {
+                auth.showNotification('Por favor, ingrese los cambios solicitados', 'warning');
+                return;
+            }
+
+            if (confirm('¿Está seguro de solicitar cambios en este sílabo?')) {
+                try {
+                    if (syllabusManager.requestChanges(currentSyllabusId, comments)) {
+                        auth.showNotification('Se han solicitado los cambios', 'success');
+                        redirectToPanel();
+                    } else {
+                        throw new Error('No se pudieron solicitar los cambios');
+                    }
+                } catch (error) {
+                    console.error('Error al solicitar cambios:', error);
+                    auth.showNotification(error.message, 'error');
+                }
+            }
+        }
+
+        function showError(message) {
+            auth.showNotification(message, 'error');
+            cleanupAndRedirect();
+        }
+
+        function cleanupAndRedirect() {
+            // Limpiar el ID almacenado
+            localStorage.removeItem('reviewing_syllabus');
+            // Redirigir después de un breve retraso
+            setTimeout(() => {
+                window.location.href = 'panel-comision.html';
+            }, 1500);
+        }
+
+        function redirectToPanel() {
+            cleanupAndRedirect();
+        }
+
+        function getStatusName(status) {
+            const names = {
+                draft: 'Borrador',
+                pending: 'Pendiente de Revisión',
+                approved: 'Aprobado',
+                rejected: 'Cambios Solicitados'
+            };
+            return names[status] || status;
+        }
+    </script>
+</body>
+</html>
